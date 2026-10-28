@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Protected Dashboard - Full-Stack Authentication System">
+  <!-- Instruct browsers not to cache the dashboard shell -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>User Dashboard | Authentication System</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <header class="dashboard-header-bar" role="banner">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span class="brand-badge" style="margin-bottom: 0;">&#128274; Auth Core</span>
+      <span class="dashboard-brand">Security Dashboard</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span id="navUserBadge" class="user-badge" style="display: none;">
+        <span>&#128100;</span>
+        <span id="navUsername">Loading...</span>
+      </span>
+      <button type="button" id="logoutBtn" class="btn-secondary" aria-label="Sign out of account">
+        <span>&#128275;</span>
+        <span id="logoutBtnText">Sign Out</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="dashboard-wrapper">
+    <!-- Notification Banner -->
+    <div id="alertBanner" class="alert-banner" role="alert" aria-live="polite"></div>
+
+    <!-- Loading State -->
+    <div id="loadingState" style="text-align: center; padding: 60px 20px;">
+      <div class="spinner" style="display: inline-block; width: 32px; height: 32px; border-color: #94a3b8; border-top-color: #1e293b; margin-bottom: 16px;" aria-hidden="true"></div>
+      <p style="color: var(--text-secondary); font-weight: 500;">Verifying authenticated session...</p>
+    </div>
+
+    <!-- Protected User Profile Card (Hidden by default until session verified) -->
+    <section id="dashboardContent" class="dashboard-card" style="display: none;" aria-labelledby="welcomeTitle">
+      <h1 id="welcomeTitle" class="welcome-title">Welcome back!</h1>
+      <p class="welcome-text">You have successfully authenticated via a secure, signed JWT stored in an HttpOnly cookie.</p>
+
+      <!-- User Profile Grid -->
+      <div class="profile-grid">
+        <div class="profile-card-item">
+          <div class="profile-card-label">Username</div>
+          <div id="profileUsername" class="profile-card-value">-</div>
+        </div>
+
+        <div class="profile-card-item">
+          <div class="profile-card-label">Email Address</div>
+          <div id="profileEmail" class="profile-card-value">-</div>
+        </div>
+
+        <div class="profile-card-item">
+          <div class="profile-card-label">Account Created</div>
+          <div id="profileMemberSince" class="profile-card-value">-</div>
+        </div>
+
+        <div class="profile-card-item">
+          <div class="profile-card-label">Session Status</div>
+          <div id="profileStatus" class="profile-card-value" style="color: #059669;">&#10003; Active &amp; Verified</div>
+        </div>
+      </div>
+
+      <!-- Security Implementation Summary -->
+      <div class="security-badge-container">
+        <div class="security-badge-title">
+          <span>&#128737;</span>
+          <span>Security Architecture Highlights</span>
+        </div>
+        <p class="security-badge-text">
+          &bull; <strong>HttpOnly Cookie:</strong> Token cannot be accessed or stolen via JavaScript (mitigates XSS).<br>
+          &bull; <strong>Server-Side Verification:</strong> Backend verifies cryptographic HMAC signature on every request.<br>
+          &bull; <strong>Anti-Caching Headers:</strong> Browsers are instructed never to store protected profile payloads.<br>
+          &bull; <strong>Safe User Serialization:</strong> Password hashes are completely stripped before returning data.
+        </p>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <button type="button" id="footerLogoutBtn" class="btn-primary" style="max-width: 200px;">
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

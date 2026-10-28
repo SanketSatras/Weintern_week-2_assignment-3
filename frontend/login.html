@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Secure User Login - Full-Stack Authentication System">
+  <title>Sign In | Authentication System</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="page-container">
+    <div class="auth-card" role="region" aria-labelledby="login-heading">
+      <header class="card-header">
+        <div class="brand-badge">
+          <span>&#128274; Auth Core</span>
+        </div>
+        <h1 id="login-heading" class="card-title">Sign In</h1>
+        <p class="card-subtitle">Enter your credentials to access the protected dashboard</p>
+      </header>
+
+      <!-- Global Alert / Status Notification -->
+      <div id="alertBanner" class="alert-banner" role="alert" aria-live="polite"></div>
+
+      <!-- Login Form -->
+      <form id="loginForm" novalidate>
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <div class="input-wrapper">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              placeholder="name@example.com"
+              autocomplete="email"
+              required
+              aria-describedby="emailError"
+            >
+          </div>
+          <div id="emailError" class="field-error" aria-live="polite"></div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+              aria-describedby="passwordError"
+            >
+            <button
+              type="button"
+              id="togglePasswordBtn"
+              class="password-toggle-btn"
+              aria-label="Toggle password visibility"
+            >
+              Show
+            </button>
+          </div>
+          <div id="passwordError" class="field-error" aria-live="polite"></div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submitBtn" class="btn-primary">
+          <span class="spinner" aria-hidden="true"></span>
+          <span id="submitBtnText">Sign In</span>
+        </button>
+      </form>
+
+      <!-- Card Footer Navigation -->
+      <footer class="card-footer">
+        <p>Don't have an account yet? <a href="register.html" id="linkToRegister">Create account here</a></p>
+      </footer>
+    </div>
+  </main>
+
+  <script src="js/login.js"></script>
+</body>
+</html>

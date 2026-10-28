@@ -1,0 +1,350 @@
+{
+  "info": {
+    "_postman_id": "b3e0988c-79ad-4522-8d76-c0d12e93a74b",
+    "name": "Authentication API Collection",
+    "description": "Comprehensive Postman test collection for Full-Stack User Authentication System covering registration, password hashing, HttpOnly cookie management, JWT verification, protected profile, and logout.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Server Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Verifies that the Express server is up and responsive without leaking database secrets."
+      },
+      "response": [
+        {
+          "name": "Healthy Server Response",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/health"
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": true,\n    \"status\": \"healthy\",\n    \"timestamp\": \"2026-10-26T10:15:00.000Z\",\n    \"uptimeSeconds\": 120\n}"
+        }
+      ]
+    },
+    {
+      "name": "2. Register New User - Success",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"alex_rivera\",\n  \"email\": \"alex.rivera@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"confirmPassword\": \"SecurePass123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        },
+        "description": "Registers a new user account. Password is automatically hashed using bcryptjs."
+      },
+      "response": [
+        {
+          "name": "Registration Success",
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": true,\n    \"message\": \"Registration successful. Please log in.\",\n    \"user\": {\n        \"id\": \"671d09e1e24741366e6b8a1c\",\n        \"username\": \"alex_rivera\",\n        \"email\": \"alex.rivera@example.com\",\n        \"createdAt\": \"2026-10-26T10:15:30.000Z\"\n    }\n}"
+        }
+      ]
+    },
+    {
+      "name": "3. Register - Duplicate Email Prevention",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"alex_duplicate\",\n  \"email\": \"alex.rivera@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"confirmPassword\": \"SecurePass123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        },
+        "description": "Tests rejection when attempting to register an existing email address."
+      },
+      "response": [
+        {
+          "name": "Duplicate Email Error",
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": false,\n    \"message\": \"An account with this email already exists.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "4. Register - Weak Password Validation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"weak_user\",\n  \"email\": \"weak@example.com\",\n  \"password\": \"short\",\n  \"confirmPassword\": \"short\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        },
+        "description": "Ensures password policy requires minimum 8 characters with lowercase, uppercase, and digit."
+      },
+      "response": [
+        {
+          "name": "Validation Error",
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": false,\n    \"message\": \"Password must be at least 8 characters long.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "5. Register - Mismatched Password Confirmation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"mismatch_user\",\n  \"email\": \"mismatch@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"confirmPassword\": \"DifferentPass123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        },
+        "description": "Ensures confirmPassword must exactly match password."
+      },
+      "response": [
+        {
+          "name": "Password Mismatch",
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": false,\n    \"message\": \"Passwords do not match.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "6. User Login - Success (Issues Cookie)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"alex.rivera@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        },
+        "description": "Verifies bcrypt password and sets signed JWT in HttpOnly cookie."
+      },
+      "response": [
+        {
+          "name": "Login Success",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": true,\n    \"message\": \"Login successful. Welcome back!\",\n    \"user\": {\n        \"id\": \"671d09e1e24741366e6b8a1c\",\n        \"username\": \"alex_rivera\",\n        \"email\": \"alex.rivera@example.com\"\n    }\n}"
+        }
+      ]
+    },
+    {
+      "name": "7. User Login - Invalid Password (Generic Message)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"alex.rivera@example.com\",\n  \"password\": \"WrongPassword!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        },
+        "description": "Returns generic error without revealing whether email or password was wrong."
+      },
+      "response": [
+        {
+          "name": "Invalid Credentials",
+          "status": "Unauthorized",
+          "code": 401,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": false,\n    \"message\": \"Invalid email or password.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "8. User Login - Unregistered Email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"nonexistent@example.com\",\n  \"password\": \"SomePass123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        },
+        "description": "Returns generic error without revealing non-existence of user account."
+      },
+      "response": [
+        {
+          "name": "Invalid Credentials",
+          "status": "Unauthorized",
+          "code": 401,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": false,\n    \"message\": \"Invalid email or password.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "9. Get Authenticated Profile - Success",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "me"]
+        },
+        "description": "Retrieves the user profile using the HttpOnly cookie automatically stored from the login step."
+      },
+      "response": [
+        {
+          "name": "Profile Retrieved",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": true,\n    \"user\": {\n        \"id\": \"671d09e1e24741366e6b8a1c\",\n        \"username\": \"alex_rivera\",\n        \"email\": \"alex.rivera@example.com\",\n        \"createdAt\": \"2026-10-26T10:15:30.000Z\"\n    }\n}"
+        }
+      ]
+    },
+    {
+      "name": "10. Get Profile - Unauthorized Without Cookie",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "me"]
+        },
+        "description": "Accessing protected route without authentication cookie returns HTTP 401."
+      },
+      "response": [
+        {
+          "name": "Unauthorized Response",
+          "status": "Unauthorized",
+          "code": 401,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": false,\n    \"message\": \"Please log in to access this page.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "11. User Logout - Clears Cookie",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/logout",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "logout"]
+        },
+        "description": "Clears auth_token cookie with matching Path, HttpOnly, and SameSite attributes."
+      },
+      "response": [
+        {
+          "name": "Logout Success",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": true,\n    \"message\": \"Logged out successfully.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "12. Access Protected Endpoint After Logout",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "me"]
+        },
+        "description": "Verifies that after logout cookie is cleared, protected endpoint rejects request."
+      },
+      "response": [
+        {
+          "name": "Logged Out Unauthorized",
+          "status": "Unauthorized",
+          "code": 401,
+          "_postman_previewlanguage": "json",
+          "body": "{\n    \"success\": false,\n    \"message\": \"Please log in to access this page.\"\n}"
+        }
+      ]
+    }
+  ]
+}
