@@ -22,8 +22,10 @@ Tech Stack
 - Security: bcryptjs, JWT, Helmet, express-rate-limit, express-validator
 - Testing: Jest, Supertest, Postman
 
-Project Structure
 
+## 📁 Project Structure
+
+```text
 project/
 ├── .gitignore
 ├── README.md
@@ -61,6 +63,7 @@ project/
 │   └── register.html
 └── postman/
     └── Authentication_API.postman_collection.json
+```
 
 Requirements
 - Node.js and npm
